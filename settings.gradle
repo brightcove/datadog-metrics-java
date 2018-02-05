@@ -1,0 +1,4 @@
+rootProject.name = 'dd-metrics'
+
+include 'dd-metrics-core'
+include 'dd-metrics-jvm'

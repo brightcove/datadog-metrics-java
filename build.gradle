@@ -1,0 +1,32 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath "com.jaredsburrows:gradle-checker-framework-plugin:0.2.0"
+    }
+}
+
+subprojects {
+    repositories {
+        jcenter()
+    }
+
+    apply plugin: 'groovy'
+    apply plugin: 'com.jaredsburrows.checkerframework'
+
+    dependencies {
+        compile 'com.datadoghq:java-dogstatsd-client:2.5'
+        compile 'org.slf4j:slf4j-api:1.7.25'
+
+        testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+    }
+}
+
+task sphinx(type: Exec, group: 'Documentation') {
+  description 'Generate Sphinx documentation.'
+  commandLine 'python', '-msphinx', '-b', 'html', 'docsrc', 'docs'
+}
+
+wrapper.gradleVersion = '4.5.1'
