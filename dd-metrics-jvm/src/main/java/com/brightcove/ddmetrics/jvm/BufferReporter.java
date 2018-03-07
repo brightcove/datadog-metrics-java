@@ -31,23 +31,25 @@ public class BufferReporter implements Reporter {
     @EnsuresNonNull({"#1"})
     BufferReporter(List<BufferPoolMXBean> bufferBeans) {
 	if (bufferBeans == null)
-	    throw new NullPointerException("bufferBeans must not be null");
+	    throw new NullPointerException("bufferBeans must not be null.");
 	BufferPoolMXBean directPool = null;
 	for (BufferPoolMXBean bufferBean : bufferBeans) {
 	    if (bufferBean == null)
-		throw new NullPointerException("bufferBeans must not have nulls");
+		throw new NullPointerException("bufferBeans must not have nulls.");
 	    if (bufferBean.getName() == "direct") {
 		directPool = bufferBean;
 		// could break...but don't to complete null checking
 	    }
 	}
 	if (directPool == null)
-	    throw new IllegalArgumentException("direct pool must be present");
+	    throw new IllegalArgumentException("direct pool must be present.");
 	this.directPool = directPool;
     }
 
     public void report(StatsDClient client) {
 	client.recordGaugeValue("jvm.buffers.direct.count",
 				directPool.getCount());
+	client.recordGaugeValue("jvm.buffers.direct.capacity",
+				directPool.getTotalCapacity());
     }
 }
