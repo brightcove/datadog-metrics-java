@@ -17,8 +17,8 @@ Overview
 
 This library attempts to bridge the gap between the metric functionality
 provided by `Dropwizard metrics <https://github.com/dropwizard/metrics>`_ and
-Datadog approach to tagging in a way that less convoluted than that provided by the
-`metrics-datadog <https://github.com/coursera/metrics-datadog>`_ library.
+Datadog approach to tagging in a way that less convoluted than that provided by
+the `metrics-datadog <https://github.com/coursera/metrics-datadog>`_ library.
 
 dropwizard/metrics vs.java-dogstatsd-client
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -27,7 +27,8 @@ There are already two existing libraries for sending metrics to Datadog
 from JVM apps which the role and approach of this library are best
 expressed in terms of.
 `java-dogstatsd-client <https://github.com/Datadog/java-dogstatsd-client>`_
-provides a simple and clean way to send tagged events to the Datadog agent where the agent will handle aggregation.
+provides a simple and clean way to send tagged events to the Datadog agent
+where the agent will handle aggregation.
 The key benefits that are absent from that library
 but which are provided by the dropwizard library are:
 
@@ -49,7 +50,7 @@ foisting structure and opinions on top of it.
 Time Aggregation
 """"""""""""""""
 
-Dropwizard also does time aggregation internally so that all 
+Dropwizard also does time aggregation internally so that all
 metrics are published on the same schedule in the form which will
 be sent to Datadog. Such aggregation will be left to the Datadog
 agent because:

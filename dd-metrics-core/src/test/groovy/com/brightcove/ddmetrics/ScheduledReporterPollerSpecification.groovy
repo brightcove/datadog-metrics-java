@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicReference
 import com.timgroup.statsd.StatsDClient
 
 import spock.lang.Specification
+import spock.thencleanup.ThenkfulSpecification
 import spock.util.concurrent.PollingConditions
 
 class ScheduledReporterPollerNonNullSpecification extends Specification {
@@ -18,22 +19,22 @@ class ScheduledReporterPollerNonNullSpecification extends Specification {
 
     def 'forClient constructor throws NPE if client is null.'() {
         when:
-	ScheduledReporterPoller.forClient(null)
+        ScheduledReporterPoller.forClient(null)
 
-	then:
-	thrown(NullPointerException)
+        then:
+        thrown(NullPointerException)
     }
 
     def 'registerReporter throws NPE if reporter is null.'() {
-    	when:
-	srp.registerReporter(null)
+        when:
+        srp.registerReporter(null)
 
-	then:
-	thrown(NullPointerException)
+        then:
+        thrown(NullPointerException)
     }
 }
 
-class ScheduledReporterPollerPollingSpecification extends Specification {
+class ScheduledReporterPollerPollingSpecification extends ThenkfulSpecification {
 
     StatsDClient client = Mock(StatsDClient)
     ScheduledReporterPoller srp = ScheduledReporterPoller.forClient(client)
@@ -43,109 +44,109 @@ class ScheduledReporterPollerPollingSpecification extends Specification {
     }
 
     def 'Starts without error (doing nothing) if no Reporters registered.'() {
-    	when:
-    	srp.start(Duration.ofSeconds(1))
-	TimeUnit.SECONDS.sleep 2
+        when:
+        srp.start(Duration.ofSeconds(1))
+        TimeUnit.SECONDS.sleep 2
 
-	then:
-	notThrown(Exception)
+        then:
+        notThrown(Exception)
     }
 
     def 'Attempting to start when already started throws an Exception.'() {
         given:
-	srp.start(Duration.ofSeconds(1))
+        srp.start(Duration.ofSeconds(1))
 
-	when:
-	srp.start(Duration.ofSeconds(1))
+        when:
+        srp.start(Duration.ofSeconds(1))
 
-	then:
-	thrown(IllegalStateException)
+        then:
+        thrown(IllegalStateException)
     }
 
     def 'If never started, Reporter is never polled.'() {
         given:
-	CountDownLatch l = new CountDownLatch(1)
-	Reporter reporter = Mock() { report(*_) >> { l.countDown() } }
+        CountDownLatch l = new CountDownLatch(1)
+        Reporter reporter = Mock() { report(*_) >> { l.countDown() } }
 
-	when:
-	srp.registerReporter(reporter)
-	Boolean polled = l.await(5, TimeUnit.SECONDS)
+        when:
+        srp.registerReporter(reporter)
+        Boolean polled = l.await(5, TimeUnit.SECONDS)
 
-	then:
-	!polled
+        then:
+        !polled
     }
 
     def 'Reporter registered before startup is polled.'() {
         given:
-	CountDownLatch l = new CountDownLatch(2)
-	Reporter reporter = Mock() {
+        CountDownLatch l = new CountDownLatch(2)
+        Reporter reporter = Mock() {
             report(*_) >> { args ->
-	        assert(args[0] == client)
+                thenk { assert(args[0] == client) }
                 l.countDown()
-	    }
-	}
-	srp.registerReporter(reporter)
+            }
+        }
+        srp.registerReporter(reporter)
 
-	when:
-	srp.start(Duration.ofSeconds(1))
-	Boolean polled = l.await(5, TimeUnit.SECONDS)
+        when:
+        srp.start(Duration.ofSeconds(1))
+        Boolean polled = l.await(5, TimeUnit.SECONDS)
 
-	then:
-	polled
+        then:
+        polled
     }
 
     def 'Reporter registered after startup is polled.'() {
         given:
-	CountDownLatch l = new CountDownLatch(2)	
-	Reporter reporter = Mock(Reporter) {
-	    report(*_) >> { args -> 
-	        assert(args[0] == client)
-		l.countDown()
+        CountDownLatch l = new CountDownLatch(2)
+        Reporter reporter = Mock(Reporter) {
+            report(*_) >> { args ->
+                thenk { assert(args[0] == client) }
+                l.countDown()
             }
-	}
-	srp.start(Duration.ofSeconds(1))
+        }
+        srp.start(Duration.ofSeconds(1))
 
-	when:
-	srp.registerReporter(reporter)
-	Boolean polled = l.await(5, TimeUnit.SECONDS)
+        when:
+        srp.registerReporter(reporter)
+        Boolean polled = l.await(5, TimeUnit.SECONDS)
 
-	then:
-	polled
+        then:
+        polled
     }
 
     def 'Multiple registered reporters are polled in order of registration.'() {
         given:
-	ConcurrentLinkedQueue<Integer> results = new ConcurrentLinkedQueue<>()
-	List<Reporter> rs = (0..2).collect{ ix ->
-	    Mock(Reporter) { report(*_) >> { results.add(ix) } }
-	}
-	rs.each(srp.&registerReporter)
+        ConcurrentLinkedQueue<Integer> results = new ConcurrentLinkedQueue<>()
+        List<Reporter> rs = (0..2).collect{ ix ->
+            Mock(Reporter) { report(*_) >> { results.add(ix) } }
+        }
+        rs.each(srp.&registerReporter)
 
-	when:
-	srp.start(Duration.ofSeconds(1))
-	TimeUnit.SECONDS.sleep 3
+        when:
+        srp.start(Duration.ofSeconds(1))
+        TimeUnit.SECONDS.sleep 3
 
-	then:
-	results.size() > 3
-	results.eachWithIndex { it, ix -> assert ix % 3 == it }
+        then:
+        results.size() > 3
+        results.eachWithIndex { it, ix -> assert ix % 3 == it }
     }
 
     def 'An exception thrown in the Reporter is swallowed'() {
         given:
-	CountDownLatch l = new CountDownLatch(2)
-	Reporter bad = Mock(Reporter) {
-	    report(*_) >> { throw new AssertionError("I'm bad") }
-	}
-	Reporter reporter = Mock(Reporter) { report(*_) >> { l.countDown() } }
-	srp.registerReporter(bad)
-	srp.registerReporter(reporter)
+        CountDownLatch l = new CountDownLatch(2)
+        Reporter bad = Mock(Reporter) {
+            report(*_) >> { throw new AssertionError("I'm bad") }
+        }
+        Reporter reporter = Mock(Reporter) { report(*_) >> { l.countDown() } }
+        srp.registerReporter(bad)
+        srp.registerReporter(reporter)
 
-	when:
-	srp.start(Duration.ofSeconds(1))
-	Boolean polled = l.await(5, TimeUnit.SECONDS)
+        when:
+        srp.start(Duration.ofSeconds(1))
+        Boolean polled = l.await(5, TimeUnit.SECONDS)
 
-	then:
-	polled
+        then:
+        polled
     }
 }
 
@@ -160,37 +161,36 @@ class ScheduledReporterPollerCloseSpecification extends Specification {
     ScheduledReporterPoller srp = ScheduledReporterPoller.forClient(client)
 
     def 'If never started, close successfully.'() {
-    	when:
-	srp.close()
+        when:
+        srp.close()
 
-	then:
-	notThrown(Exception)
+        then:
+        notThrown(Exception)
     }
 
     def 'If started, background thread is stopped.'() {
         given:
         AtomicReference<Thread> t = new AtomicReference<>();
-	Reporter reporter = Mock(Reporter) {
-	    report(*_) >> { t.compareAndSet(null, Thread.currentThread()) }
+        Reporter reporter = Mock(Reporter) {
+            report(*_) >> { t.compareAndSet(null, Thread.currentThread()) }
         }
-	srp.registerReporter(reporter)
-	def conditions = new PollingConditions(timeout: 3)
+        srp.registerReporter(reporter)
+        def conditions = new PollingConditions(timeout: 3)
 
-	when:
-	srp.start(Duration.ofSeconds(2))
+        when:
+        srp.start(Duration.ofSeconds(2))
 
-	then:
-	conditions.eventually {
+        then:
+        conditions.eventually {
             assert t.get() != null
-	}
+        }
 
-	when:
-	srp.close()
+        when:
+        srp.close()
 
-	then:
-	conditions.eventually {
-	    assert t.get().state == Thread.State.TERMINATED
-	}
+        then:
+        conditions.eventually {
+            assert t.get().state == Thread.State.TERMINATED
+        }
     }
 }
-
