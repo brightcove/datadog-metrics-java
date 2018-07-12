@@ -9,42 +9,42 @@ import com.timgroup.statsd.StatsDClient
 
 class BufferReporterSpecification extends Specification {
 
-  StubBufferPoolMXBean directMBean = new StubBufferPoolMXBean(name: 'direct', count: 23L, totalCapacity: 1024L)
-  BufferReporter reporter = new BufferReporter([directMBean])  
-  StatsDClient client = Mock(StatsDClient)
+    StubBufferPoolMXBean directMBean = new StubBufferPoolMXBean(name: 'direct', count: 23L, totalCapacity: 1024L)
+    BufferReporter reporter = new BufferReporter([directMBean])
+    StatsDClient client = Mock(StatsDClient)
 
-  def 'Throws NullPointerException if bufferBeans is null.'() {
-    when:
-    new BufferReporter(null)
+    def 'Throws NullPointerException if bufferBeans is null.'() {
+        when:
+        new BufferReporter(null)
 
-    then:
-    thrown(NullPointerException)
-  }
+        then:
+        thrown(NullPointerException)
+    }
 
-  def 'Throws NullPointerException if bufferBeans contains any null values.'() {
-    when:
-    new BufferReporter(bufferBeans)
+    def 'Throws NullPointerException if bufferBeans contains any null values.'() {
+        when:
+        new BufferReporter(bufferBeans)
 
-    then:
-    thrown(NullPointerException)
+        then:
+        thrown(NullPointerException)
 
-    where:
-    bufferBeans << [
-      [null],
-      [new StubBufferPoolMXBean(name: 'direct'), null],
-      [null, new StubBufferPoolMXBean(name: 'direct')]
-    ]
-  }
+        where:
+        bufferBeans << [
+            [null],
+            [new StubBufferPoolMXBean(name: 'direct'), null],
+            [null, new StubBufferPoolMXBean(name: 'direct')]
+        ]
+    }
 
-  def 'Throws IllegalArgumentException if bufferBeans is empty.'() {
-    when:
-    new BufferReporter([])
+    def 'Throws IllegalArgumentException if bufferBeans is empty.'() {
+        when:
+        new BufferReporter([])
 
-    then:
-    thrown(IllegalArgumentException)
-  }
+        then:
+        thrown(IllegalArgumentException)
+    }
 
-  def 'Throws IllegalArgumentException if bufferBeans does not contain direct pool.'() {
+    def 'Throws IllegalArgumentException if bufferBeans does not contain direct pool.'() {
     when:
     new BufferReporter([new StubBufferPoolMXBean(name: 'indirect'),
     	                new StubBufferPoolMXBean(name: 'transitive')])

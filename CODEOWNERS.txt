@@ -1,4 +1,3 @@
-
 # https://help.github.com/articles/about-codeowners/
 # https://github.com/blog/2392-introducing-code-owners
 # Lines starting with '#' are comments.
@@ -7,7 +6,6 @@
 # These owners will be the default owners for everything in the repo.
 *       @mwhipple # Matt Whipple
 # YOUR NAME HERE -- !! HELP WANTED !!
-
 
 # Order is important. The last matching pattern has the most precedence.
 # So if a pull request only touches javascript files, only these owners

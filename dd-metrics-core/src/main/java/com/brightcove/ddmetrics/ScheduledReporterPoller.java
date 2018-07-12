@@ -20,8 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
- *
  * Much of this will be stolen from
  * `ScheduledReporter` in dropwizard metrics.
  */
@@ -177,10 +175,10 @@ public final class ScheduledReporterPoller implements Closeable {
                 }
             }
         } catch (InterruptedException e) {
-	    // (Re-)Cancel if current thread also interrupted.
-	    executor.shutdownNow();
-	    // Preserve interrupt status.
-	    Thread.currentThread().interrupt();
-	}
+            // (Re-)Cancel if current thread also interrupted.
+            executor.shutdownNow();
+            // Preserve interrupt status.
+            Thread.currentThread().interrupt();
+        }
     }
 }

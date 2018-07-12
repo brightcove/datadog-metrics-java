@@ -16,7 +16,7 @@ import com.timgroup.statsd.StatsDClient;
  * by the JMX management interface.
  *
  * Currently reports:
- * 
+ *
  * - 'jvm.memory.heap.used'
  * - 'jvm.memory.heap.committed'
  * - 'jvm.memory.heap.max'
@@ -29,28 +29,28 @@ public class MemoryReporter implements Reporter {
     private final MemoryMXBean memBean;
 
     public MemoryReporter() {
-	this(ManagementFactory.getMemoryMXBean());
+        this(ManagementFactory.getMemoryMXBean());
     }
 
     @EnsuresNonNull({"#1"})
     MemoryReporter(MemoryMXBean memBean) {
-	if (memBean == null)
-	    throw new NullPointerException("memBean must not be null");
-	this.memBean = memBean;
+        if (memBean == null)
+            throw new NullPointerException("memBean must not be null");
+        this.memBean = memBean;
     }
-    
+
     public void report(StatsDClient client) {
-	client.recordGaugeValue("jvm.memory.heap.used",
-				memBean.getHeapMemoryUsage().getUsed());
-	client.recordGaugeValue("jvm.memory.heap.committed",
-				memBean.getHeapMemoryUsage().getCommitted());
-	client.recordGaugeValue("jvm.memory.heap.max",
-				memBean.getHeapMemoryUsage().getMax());
-	client.recordGaugeValue("jvm.memory.non_heap.used",
-				memBean.getNonHeapMemoryUsage().getUsed());
-	client.recordGaugeValue("jvm.memory.non_heap.committed",
-				memBean.getNonHeapMemoryUsage().getCommitted());
-	client.recordGaugeValue("jvm.memory.non_heap.max",
-				memBean.getNonHeapMemoryUsage().getMax());
+        client.recordGaugeValue("jvm.memory.heap.used",
+                                memBean.getHeapMemoryUsage().getUsed());
+        client.recordGaugeValue("jvm.memory.heap.committed",
+                                memBean.getHeapMemoryUsage().getCommitted());
+        client.recordGaugeValue("jvm.memory.heap.max",
+                                memBean.getHeapMemoryUsage().getMax());
+        client.recordGaugeValue("jvm.memory.non_heap.used",
+                                memBean.getNonHeapMemoryUsage().getUsed());
+        client.recordGaugeValue("jvm.memory.non_heap.committed",
+                                memBean.getNonHeapMemoryUsage().getCommitted());
+        client.recordGaugeValue("jvm.memory.non_heap.max",
+                                memBean.getNonHeapMemoryUsage().getMax());
     }
 }

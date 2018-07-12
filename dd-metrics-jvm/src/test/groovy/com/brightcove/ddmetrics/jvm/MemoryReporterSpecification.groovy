@@ -74,5 +74,4 @@ class MemoryReporterSpecification extends Specification {
     1 * client.recordGaugeValue('jvm.memory.non_heap.max', 1456, [])
   }
 
-
 }
