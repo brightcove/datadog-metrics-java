@@ -1,3 +1,3 @@
 dependencies {
-  implementation 'com.brightcove:dd-metrics-core:0.1.0'
+  implementation 'com.brightcove:dd-metrics-core:0.2.0'
 }
