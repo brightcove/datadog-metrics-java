@@ -77,6 +77,17 @@ class TimerSpecification extends ThenkfulSpecification {
         }
     }
 
+    def 'time rethrows any exceptions from callable and does not log time'() {
+        when:
+        timer.time('anything') {
+            throw new IOException('blah')
+        }
+
+        then:
+        thrown(Exception)
+        0 * client.recordExecutionTime(*_)
+    }
+
     def 'nested calls are supported'() {
         given:
         def calls = [:]
