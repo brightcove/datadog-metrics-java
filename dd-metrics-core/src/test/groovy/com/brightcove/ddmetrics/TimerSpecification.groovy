@@ -1,4 +1,4 @@
-package com.brightcove.ddmetrics;
+package com.brightcove.ddmetrics
 
 import com.timgroup.statsd.StatsDClient
 
@@ -140,4 +140,54 @@ class TimerSpecification extends ThenkfulSpecification {
         }
     }
 
+}
+
+class TimerExceptionSpecification extends Specification {
+    StatsDClient client = Mock(StatsDClient)
+    Timer timer = new Timer(client)
+
+    def 'when the timed code throws a RuntimeException, that exception escapes'() {
+        given:
+        Exception ex = new IllegalArgumentException('Sample runtime exception')
+
+        when:
+        timer.time('rtEx') {
+            throw ex
+        }
+
+        then:
+        Exception actual = thrown()
+	actual == ex
+    }
+
+    def 'when the timed code throws a checked exception, that exception escapes'() {
+        given:
+        Exception ex = new java.util.concurrent.TimeoutException('Sample checked exception')
+
+        when:
+        timer.time('rtEx') {
+            throw ex
+        }
+
+        then:
+        Exception actual = thrown()
+	actual == ex
+    }
+
+    def 'exception handling in client code functions properly'() {
+        given:
+        Exception ex = new java.util.concurrent.TimeoutException('Sample checked exception')
+
+        when:
+        try {
+            timer.time('rtEx') {
+                throw ex
+            }
+        } catch (java.util.concurrent.TimeoutException e) {
+            // Exception swallowed
+        }
+
+        then:
+        notThrown()
+    }
 }
