@@ -42,7 +42,7 @@ Add the BC Nexus repository and a compile time dependency on this project:
 .. code-block:: groovy
 
    repository {
-     maven { url 'http://nexus.vidmark.local:8081/nexus/content/groups/public' }
+     maven { url 'https://nexus.brightcove.com/nexus/content/groups/public' }
    }
 
    dependencies {
